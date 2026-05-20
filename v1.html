@@ -1,0 +1,1089 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ChartMind — Analyse Technique IA</title>
+<script src="https://js.puter.com/v2/"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@300;400;500;600&family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #060810;
+    --panel: #0c1020;
+    --border: #1a2240;
+    --border-bright: #2a3a60;
+    --gold: #d4a843;
+    --gold-dim: #8a6c28;
+    --amber: #f59e0b;
+    --green: #22c55e;
+    --red: #ef4444;
+    --blue: #3b82f6;
+    --text: #e8eaf0;
+    --text-dim: #6b7a99;
+    --text-muted: #3d4d6b;
+    --glow: rgba(212, 168, 67, 0.15);
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'IBM Plex Mono', monospace;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* Grid background */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(26,34,64,0.4) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(26,34,64,0.4) 1px, transparent 1px);
+    background-size: 40px 40px;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  /* Top scanline effect */
+  body::after {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background: repeating-linear-gradient(
+      0deg,
+      transparent,
+      transparent 2px,
+      rgba(0,0,0,0.08) 2px,
+      rgba(0,0,0,0.08) 4px
+    );
+    pointer-events: none;
+    z-index: 999;
+  }
+
+  .header {
+    position: relative;
+    z-index: 10;
+    padding: 20px 40px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: rgba(6,8,16,0.9);
+    backdrop-filter: blur(10px);
+  }
+
+  .logo {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+  }
+
+  .logo-icon {
+    width: 36px;
+    height: 36px;
+    border: 1.5px solid var(--gold);
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .logo-icon::before {
+    content: '';
+    position: absolute;
+    bottom: 4px; left: 4px; right: 4px;
+    height: 60%;
+    background: linear-gradient(90deg,
+      transparent 0%, var(--gold-dim) 20%, var(--gold) 35%,
+      var(--gold-dim) 50%, transparent 55%,
+      var(--gold-dim) 70%, var(--gold) 80%, transparent 100%);
+    clip-path: polygon(0 100%, 15% 50%, 30% 70%, 45% 20%, 60% 45%, 75% 10%, 90% 35%, 100% 0, 100% 100%);
+  }
+
+  .logo-text {
+    font-family: 'Syne', sans-serif;
+    font-size: 20px;
+    font-weight: 800;
+    letter-spacing: -0.5px;
+  }
+
+  .logo-text span { color: var(--gold); }
+
+  .header-status {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 11px;
+    color: var(--text-dim);
+    letter-spacing: 0.08em;
+  }
+
+  .status-dot {
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: var(--green);
+    box-shadow: 0 0 8px var(--green);
+    animation: pulse 2s ease-in-out infinite;
+  }
+
+  @keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.4; }
+  }
+
+  .main {
+    position: relative;
+    z-index: 5;
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 40px 20px 80px;
+  }
+
+  .hero {
+    text-align: center;
+    margin-bottom: 48px;
+  }
+
+  .hero h1 {
+    font-family: 'Syne', sans-serif;
+    font-size: clamp(28px, 4vw, 48px);
+    font-weight: 800;
+    line-height: 1.1;
+    margin-bottom: 12px;
+    letter-spacing: -1px;
+  }
+
+  .hero h1 .accent { color: var(--gold); }
+
+  .hero p {
+    color: var(--text-dim);
+    font-size: 13px;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+  }
+
+  /* Upload zone */
+  .upload-section {
+    margin-bottom: 32px;
+  }
+
+  .drop-zone {
+    border: 1.5px dashed var(--border-bright);
+    border-radius: 12px;
+    padding: 48px 24px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.25s ease;
+    background: rgba(12,16,32,0.5);
+    position: relative;
+    overflow: hidden;
+  }
+
+  .drop-zone::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(ellipse at 50% 0%, rgba(212,168,67,0.04) 0%, transparent 70%);
+    pointer-events: none;
+  }
+
+  .drop-zone:hover, .drop-zone.drag-over {
+    border-color: var(--gold);
+    background: rgba(212,168,67,0.04);
+    box-shadow: 0 0 40px rgba(212,168,67,0.08), inset 0 0 40px rgba(212,168,67,0.03);
+  }
+
+  .drop-zone.has-image {
+    border-style: solid;
+    border-color: var(--gold-dim);
+    padding: 0;
+  }
+
+  .drop-icon {
+    width: 56px; height: 56px;
+    margin: 0 auto 20px;
+    border: 1.5px solid var(--border-bright);
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--gold-dim);
+    font-size: 24px;
+  }
+
+  .drop-title {
+    font-family: 'Syne', sans-serif;
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--text);
+    margin-bottom: 8px;
+  }
+
+  .drop-sub {
+    font-size: 11px;
+    color: var(--text-dim);
+    letter-spacing: 0.06em;
+  }
+
+  .drop-actions {
+    display: flex;
+    gap: 12px;
+    justify-content: center;
+    margin-top: 24px;
+  }
+
+  .btn-upload {
+    padding: 10px 20px;
+    border: 1px solid var(--gold-dim);
+    border-radius: 6px;
+    background: rgba(212,168,67,0.06);
+    color: var(--gold);
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 12px;
+    font-weight: 500;
+    cursor: pointer;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    transition: all 0.2s;
+  }
+
+  .btn-upload:hover {
+    background: rgba(212,168,67,0.12);
+    border-color: var(--gold);
+    box-shadow: 0 0 16px rgba(212,168,67,0.1);
+  }
+
+  #file-input { display: none; }
+
+  #preview-image {
+    display: none;
+    width: 100%;
+    max-height: 500px;
+    object-fit: contain;
+    border-radius: 10px;
+  }
+
+  .image-loaded-overlay {
+    display: none;
+    position: absolute;
+    top: 12px; right: 12px;
+    background: rgba(6,8,16,0.85);
+    border: 1px solid var(--border-bright);
+    border-radius: 6px;
+    padding: 6px 12px;
+    font-size: 10px;
+    color: var(--gold);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+
+  /* Context input */
+  .context-row {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 12px;
+    margin-bottom: 32px;
+    align-items: end;
+  }
+
+  .input-group label {
+    display: block;
+    font-size: 10px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--text-dim);
+    margin-bottom: 8px;
+  }
+
+  .context-input {
+    width: 100%;
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 12px 16px;
+    color: var(--text);
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 13px;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+
+  .context-input::placeholder { color: var(--text-muted); }
+
+  .context-input:focus {
+    border-color: var(--gold-dim);
+    box-shadow: 0 0 0 2px rgba(212,168,67,0.06);
+  }
+
+  /* Analyze button */
+  .btn-analyze {
+    padding: 12px 32px;
+    background: linear-gradient(135deg, var(--gold) 0%, var(--amber) 100%);
+    border: none;
+    border-radius: 6px;
+    color: #060810;
+    font-family: 'Syne', sans-serif;
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+    letter-spacing: 0.04em;
+    white-space: nowrap;
+    transition: all 0.2s;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .btn-analyze::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: rgba(255,255,255,0);
+    transition: background 0.2s;
+  }
+
+  .btn-analyze:hover::before { background: rgba(255,255,255,0.1); }
+  .btn-analyze:active::before { background: rgba(0,0,0,0.1); }
+
+  .btn-analyze:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+  }
+
+  /* Loading */
+  .loading-bar {
+    display: none;
+    height: 2px;
+    background: var(--border);
+    border-radius: 2px;
+    margin-bottom: 32px;
+    overflow: hidden;
+  }
+
+  .loading-bar.active { display: block; }
+
+  .loading-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--gold-dim), var(--gold), var(--amber));
+    animation: loading-slide 1.5s ease-in-out infinite;
+  }
+
+  @keyframes loading-slide {
+    0% { transform: translateX(-100%); width: 60%; }
+    100% { transform: translateX(200%); width: 60%; }
+  }
+
+  /* Results */
+  #results {
+    display: none;
+    animation: fadeUp 0.5s ease;
+  }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .results-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 24px;
+  }
+
+  .results-title {
+    font-family: 'Syne', sans-serif;
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--gold);
+  }
+
+  .timestamp {
+    font-size: 10px;
+    color: var(--text-muted);
+    letter-spacing: 0.08em;
+  }
+
+  /* Signal badge */
+  .signal-bar {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 24px;
+    flex-wrap: wrap;
+  }
+
+  .signal-badge {
+    padding: 8px 18px;
+    border-radius: 6px;
+    font-family: 'Syne', sans-serif;
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    border: 1px solid;
+    animation: badgeFade 0.4s ease;
+  }
+
+  @keyframes badgeFade {
+    from { opacity: 0; transform: scale(0.9); }
+    to { opacity: 1; transform: scale(1); }
+  }
+
+  .signal-badge.bullish {
+    background: rgba(34,197,94,0.1);
+    border-color: var(--green);
+    color: var(--green);
+    box-shadow: 0 0 20px rgba(34,197,94,0.1);
+  }
+
+  .signal-badge.bearish {
+    background: rgba(239,68,68,0.1);
+    border-color: var(--red);
+    color: var(--red);
+    box-shadow: 0 0 20px rgba(239,68,68,0.1);
+  }
+
+  .signal-badge.neutral {
+    background: rgba(212,168,67,0.1);
+    border-color: var(--gold);
+    color: var(--gold);
+  }
+
+  /* Analysis panels */
+  .panels-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin-bottom: 16px;
+  }
+
+  @media (max-width: 700px) {
+    .panels-grid { grid-template-columns: 1fr; }
+    .context-row { grid-template-columns: 1fr; }
+  }
+
+  .panel {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 20px 22px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .panel::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, var(--gold-dim), transparent);
+    opacity: 0.5;
+  }
+
+  .panel.full { grid-column: 1 / -1; }
+
+  .panel-label {
+    font-size: 9px;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--gold-dim);
+    margin-bottom: 12px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .panel-label::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--border);
+  }
+
+  .panel-content {
+    font-size: 13px;
+    line-height: 1.8;
+    color: var(--text);
+  }
+
+  .panel-content strong {
+    color: var(--gold);
+    font-weight: 500;
+  }
+
+  /* Action items */
+  .action-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .action-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 12px 14px;
+    background: rgba(255,255,255,0.02);
+    border-radius: 6px;
+    border: 1px solid var(--border);
+    font-size: 13px;
+    line-height: 1.6;
+    transition: border-color 0.2s;
+  }
+
+  .action-item:hover { border-color: var(--border-bright); }
+
+  .action-icon {
+    width: 20px; height: 20px;
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 11px;
+    flex-shrink: 0;
+    margin-top: 1px;
+  }
+
+  .action-icon.buy { background: rgba(34,197,94,0.15); color: var(--green); }
+  .action-icon.sell { background: rgba(239,68,68,0.15); color: var(--red); }
+  .action-icon.wait { background: rgba(212,168,67,0.15); color: var(--gold); }
+  .action-icon.risk { background: rgba(239,68,68,0.1); color: #f87171; }
+
+  /* Levels table */
+  .levels-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+    gap: 10px;
+  }
+
+  .level-card {
+    background: rgba(255,255,255,0.02);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 10px 12px;
+  }
+
+  .level-type {
+    font-size: 9px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    margin-bottom: 4px;
+  }
+
+  .level-value {
+    font-family: 'Syne', sans-serif;
+    font-size: 16px;
+    font-weight: 700;
+  }
+
+  .level-value.support { color: var(--green); }
+  .level-value.resistance { color: var(--red); }
+  .level-value.target { color: var(--gold); }
+  .level-value.stop { color: #f97316; }
+
+  /* Confidence meter */
+  .confidence-row {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    margin-top: 8px;
+  }
+
+  .confidence-label {
+    font-size: 10px;
+    color: var(--text-dim);
+    width: 80px;
+    flex-shrink: 0;
+  }
+
+  .confidence-track {
+    flex: 1;
+    height: 4px;
+    background: var(--border);
+    border-radius: 2px;
+    overflow: hidden;
+  }
+
+  .confidence-fill {
+    height: 100%;
+    border-radius: 2px;
+    transition: width 1s ease;
+  }
+
+  .confidence-fill.high { background: var(--green); }
+  .confidence-fill.medium { background: var(--gold); }
+  .confidence-fill.low { background: var(--red); }
+
+  .confidence-pct {
+    font-size: 11px;
+    color: var(--text-dim);
+    width: 36px;
+    text-align: right;
+  }
+
+  /* Reset button */
+  .btn-reset {
+    background: none;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    color: var(--text-dim);
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.08em;
+    padding: 7px 16px;
+    cursor: pointer;
+    text-transform: uppercase;
+    transition: all 0.2s;
+  }
+
+  .btn-reset:hover {
+    border-color: var(--border-bright);
+    color: var(--text);
+  }
+
+  /* Disclaimer */
+  .disclaimer {
+    text-align: center;
+    padding: 24px;
+    font-size: 10px;
+    color: var(--text-muted);
+    letter-spacing: 0.06em;
+    line-height: 1.8;
+    border-top: 1px solid var(--border);
+    margin-top: 40px;
+  }
+
+  /* Clipboard paste hint */
+  .paste-hint {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    margin-top: 16px;
+    font-size: 11px;
+    color: var(--text-muted);
+    letter-spacing: 0.06em;
+  }
+
+  .paste-hint kbd {
+    background: var(--border);
+    border: 1px solid var(--border-bright);
+    border-radius: 3px;
+    padding: 2px 6px;
+    font-size: 10px;
+    color: var(--text-dim);
+  }
+
+  /* Error */
+  .error-msg {
+    background: rgba(239,68,68,0.08);
+    border: 1px solid rgba(239,68,68,0.3);
+    border-radius: 6px;
+    padding: 14px 16px;
+    font-size: 12px;
+    color: #fca5a5;
+    display: none;
+    margin-bottom: 24px;
+    line-height: 1.6;
+  }
+</style>
+</head>
+<body>
+
+<header class="header">
+  <div class="logo">
+    <div class="logo-icon"></div>
+    <div class="logo-text">Chart<span>Mind</span></div>
+  </div>
+  <div class="header-status">
+    <div class="status-dot"></div>
+    CLAUDE AI · ANALYSE TECHNIQUE
+  </div>
+</header>
+
+<main class="main">
+
+  <div class="hero">
+    <h1>Analyse de graphique<br><span class="accent">par Intelligence Artificielle</span></h1>
+    <p>Upload ou colle ton screenshot — obtiens une analyse technique complète</p>
+  </div>
+
+  <!-- Drop Zone -->
+  <div class="upload-section">
+    <div class="drop-zone" id="drop-zone">
+      <img id="preview-image" alt="Graphique chargé">
+      <div class="image-loaded-overlay" id="loaded-overlay">✓ Image chargée</div>
+
+      <div id="drop-content">
+        <div class="drop-icon">📊</div>
+        <div class="drop-title">Dépose ton graphique ici</div>
+        <div class="drop-sub">PNG · JPG · WEBP · Capture d'écran</div>
+        <div class="drop-actions">
+          <button class="btn-upload" onclick="document.getElementById('file-input').click()">
+            ↑ Parcourir
+          </button>
+          <button class="btn-upload" id="paste-btn">
+            ⌘ Coller
+          </button>
+        </div>
+        <div class="paste-hint">
+          Ou appuie sur <kbd>Ctrl</kbd>+<kbd>V</kbd> / <kbd>⌘V</kbd> après avoir fait une capture d'écran
+        </div>
+      </div>
+      <input type="file" id="file-input" accept="image/*">
+    </div>
+  </div>
+
+  <!-- Context + Analyze -->
+  <div class="context-row">
+    <div class="input-group">
+      <label>Contexte (optionnel)</label>
+      <input type="text" class="context-input" id="context-input"
+        placeholder="ex: BTC/USDT 4h, cherche entrée long, niveau clé à 65000...">
+    </div>
+    <button class="btn-analyze" id="analyze-btn" disabled onclick="analyzeChart()">
+      Analyser →
+    </button>
+  </div>
+
+  <!-- Loading -->
+  <div class="loading-bar" id="loading-bar">
+    <div class="loading-fill"></div>
+  </div>
+
+  <!-- Error -->
+  <div class="error-msg" id="error-msg"></div>
+
+  <!-- Results -->
+  <div id="results">
+    <div class="results-header">
+      <div class="results-title">// Analyse Technique</div>
+      <div style="display:flex;gap:10px;align-items:center;">
+        <span class="timestamp" id="ts"></span>
+        <button class="btn-reset" onclick="resetAll()">↺ Nouvelle analyse</button>
+      </div>
+    </div>
+
+    <div class="signal-bar" id="signal-bar"></div>
+
+    <div class="panels-grid">
+      <div class="panel">
+        <div class="panel-label">Tendance & Structure</div>
+        <div class="panel-content" id="trend-content"></div>
+      </div>
+      <div class="panel">
+        <div class="panel-label">Indicateurs Clés</div>
+        <div class="panel-content" id="indicators-content"></div>
+      </div>
+    </div>
+
+    <div class="panels-grid">
+      <div class="panel">
+        <div class="panel-label">Niveaux Critiques</div>
+        <div class="levels-grid" id="levels-content"></div>
+      </div>
+      <div class="panel">
+        <div class="panel-label">Confiance du Signal</div>
+        <div id="confidence-content"></div>
+      </div>
+    </div>
+
+    <div class="panels-grid">
+      <div class="panel full">
+        <div class="panel-label">Conseils & Actions Recommandées</div>
+        <div class="action-list" id="actions-content"></div>
+      </div>
+    </div>
+
+    <div class="panels-grid">
+      <div class="panel full">
+        <div class="panel-label">Analyse Narrative Complète</div>
+        <div class="panel-content" id="narrative-content"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="disclaimer">
+    ⚠ ChartMind est un outil d'aide à la décision uniquement. Les analyses générées par IA ne constituent<br>
+    pas des conseils financiers. Tradez toujours avec votre propre gestion du risque.
+  </div>
+
+</main>
+
+<script>
+let imageBase64 = null;
+let imageMediaType = 'image/png';
+
+// ── File input ──────────────────────────────────────────
+document.getElementById('file-input').addEventListener('change', e => {
+  const file = e.target.files[0];
+  if (file) loadFile(file);
+});
+
+// ── Drag & Drop ─────────────────────────────────────────
+const dz = document.getElementById('drop-zone');
+dz.addEventListener('dragover', e => { e.preventDefault(); dz.classList.add('drag-over'); });
+dz.addEventListener('dragleave', () => dz.classList.remove('drag-over'));
+dz.addEventListener('drop', e => {
+  e.preventDefault();
+  dz.classList.remove('drag-over');
+  const file = e.dataTransfer.files[0];
+  if (file && file.type.startsWith('image/')) loadFile(file);
+});
+
+// ── Clipboard paste ──────────────────────────────────────
+document.addEventListener('paste', e => {
+  const items = e.clipboardData?.items;
+  if (!items) return;
+  for (const item of items) {
+    if (item.type.startsWith('image/')) {
+      const file = item.getAsFile();
+      if (file) { loadFile(file); break; }
+    }
+  }
+});
+
+document.getElementById('paste-btn').addEventListener('click', async () => {
+  try {
+    const clipItems = await navigator.clipboard.read();
+    for (const ci of clipItems) {
+      const type = ci.types.find(t => t.startsWith('image/'));
+      if (type) {
+        const blob = await ci.getType(type);
+        loadFile(new File([blob], 'paste.png', { type }));
+        return;
+      }
+    }
+    // fallback: tell user to use Ctrl+V
+    document.getElementById('paste-btn').textContent = '⌘ Ctrl+V ici';
+    setTimeout(() => document.getElementById('paste-btn').textContent = '⌘ Coller', 2000);
+  } catch {
+    document.getElementById('paste-btn').textContent = '→ Ctrl+V';
+    setTimeout(() => document.getElementById('paste-btn').textContent = '⌘ Coller', 2000);
+  }
+});
+
+// ── Load file → base64 ───────────────────────────────────
+function loadFile(file) {
+  imageMediaType = file.type || 'image/png';
+  const reader = new FileReader();
+  reader.onload = ev => {
+    const dataUrl = ev.target.result;
+    imageBase64 = dataUrl.split(',')[1];
+
+    const img = document.getElementById('preview-image');
+    img.src = dataUrl;
+    img.style.display = 'block';
+    document.getElementById('drop-content').style.display = 'none';
+    document.getElementById('loaded-overlay').style.display = 'block';
+    dz.classList.add('has-image');
+    document.getElementById('analyze-btn').disabled = false;
+    hideError();
+  };
+  reader.readAsDataURL(file);
+}
+
+// ── Analyze ──────────────────────────────────────────────
+async function analyzeChart() {
+  if (!imageBase64) return;
+
+  const context = document.getElementById('context-input').value.trim();
+  setLoading(true);
+  hideError();
+  document.getElementById('results').style.display = 'none';
+
+  const systemPrompt = `Analyste technique expert. Réponds UNIQUEMENT en JSON valide, sans markdown, sans texte avant ou après.`;
+
+  const userContent = `Analyse ce graphique financier${context ? ` (contexte: ${context})` : ''} et retourne exactement ce JSON:
+
+{
+  "signal": "BULLISH|BEARISH|NEUTRAL",
+  "signal_label": "texte court du signal ex: Signal Haussier Fort",
+  "badges": [
+    {"label": "ex: Breakout", "type": "bullish|bearish|neutral"},
+    {"label": "ex: Surachat RSI", "type": "bearish"}
+  ],
+  "trend": "paragraphe sur la tendance, structure de marché, type de graphique détecté",
+  "indicators": "résumé des indicateurs visibles (RSI, MACD, EMA, volumes etc.)",
+  "levels": [
+    {"type": "support|resistance|target|stop", "value": "valeur ou zone", "label": "description courte"},
+    {"type": "support|resistance|target|stop", "value": "valeur ou zone", "label": "description courte"}
+  ],
+  "confidence": [
+    {"label": "Signal Global", "pct": 75, "tier": "high|medium|low"},
+    {"label": "Tendance", "pct": 80, "tier": "high"},
+    {"label": "Timing Entrée", "pct": 60, "tier": "medium"}
+  ],
+  "actions": [
+    {"icon": "buy|sell|wait|risk", "text": "action concrète avec explication"},
+    {"icon": "risk", "text": "conseil de gestion du risque avec stop-loss/take-profit"}
+  ],
+  "narrative": "analyse narrative détaillée de 3-4 phrases: contexte technique, ce qui se passe, pourquoi, et le scénario le plus probable"
+}`;
+
+  try {
+    // Puter.js: on envoie image + texte via chat avec claude-sonnet
+    const response = await puter.ai.chat(
+      [
+        { role: "system", content: systemPrompt },
+        {
+          role: "user",
+          content: [
+            {
+              type: "image",
+              source: { type: "base64", media_type: imageMediaType, data: imageBase64 }
+            },
+            { type: "text", text: userContent }
+          ]
+        }
+      ],
+      { model: "claude-haiku-4-5", max_tokens: 1000 }
+    );
+
+    console.log("Puter raw response:", JSON.stringify(response, null, 2));
+
+    const raw = typeof response === "string" ? response
+              : response?.message?.content?.[0]?.text
+              || response?.content?.[0]?.text
+              || response?.text
+              || (Array.isArray(response) ? response.map(b => b?.text || "").join("") : null)
+              || String(response);
+
+    console.log("Raw text extracted:", raw);
+
+    let parsed;
+    try {
+      const clean = raw.replace(/```json|```/g, "").trim();
+      parsed = JSON.parse(clean);
+    } catch {
+      throw new Error("JSON invalide. Réponse brute : " + raw.substring(0, 300));
+    }
+
+    renderResults(parsed);
+  } catch (err) {
+    showError("Erreur : " + err.message);
+  } finally {
+    setLoading(false);
+  }
+}
+
+// ── Render ───────────────────────────────────────────────
+function renderResults(d) {
+  // Timestamp
+  document.getElementById('ts').textContent = new Date().toLocaleTimeString('fr-FR');
+
+  // Signal badges
+  const signalBar = document.getElementById('signal-bar');
+  signalBar.innerHTML = '';
+  const mainBadge = document.createElement('div');
+  mainBadge.className = `signal-badge ${d.signal?.toLowerCase() || 'neutral'}`;
+  mainBadge.textContent = d.signal_label || d.signal;
+  signalBar.appendChild(mainBadge);
+  (d.badges || []).forEach(b => {
+    const el = document.createElement('div');
+    el.className = `signal-badge ${b.type || 'neutral'}`;
+    el.textContent = b.label;
+    signalBar.appendChild(el);
+  });
+
+  // Trend
+  document.getElementById('trend-content').innerHTML = formatText(d.trend || '—');
+
+  // Indicators
+  document.getElementById('indicators-content').innerHTML = formatText(d.indicators || '—');
+
+  // Levels
+  const levelsEl = document.getElementById('levels-content');
+  levelsEl.innerHTML = '';
+  (d.levels || []).forEach(l => {
+    levelsEl.innerHTML += `
+      <div class="level-card">
+        <div class="level-type">${l.type}</div>
+        <div class="level-value ${l.type}">${l.value}</div>
+        <div style="font-size:10px;color:var(--text-muted);margin-top:3px">${l.label || ''}</div>
+      </div>`;
+  });
+  if (!d.levels?.length) levelsEl.innerHTML = '<div style="color:var(--text-muted);font-size:12px">Non détectés</div>';
+
+  // Confidence
+  const confEl = document.getElementById('confidence-content');
+  confEl.innerHTML = '';
+  (d.confidence || []).forEach(c => {
+    confEl.innerHTML += `
+      <div class="confidence-row">
+        <div class="confidence-label">${c.label}</div>
+        <div class="confidence-track">
+          <div class="confidence-fill ${c.tier || 'medium'}" style="width:${c.pct}%"></div>
+        </div>
+        <div class="confidence-pct">${c.pct}%</div>
+      </div>`;
+  });
+
+  // Actions
+  const actEl = document.getElementById('actions-content');
+  actEl.innerHTML = '';
+  const iconMap = { buy: '▲', sell: '▼', wait: '◎', risk: '⚠' };
+  (d.actions || []).forEach(a => {
+    actEl.innerHTML += `
+      <div class="action-item">
+        <div class="action-icon ${a.icon}">${iconMap[a.icon] || '·'}</div>
+        <div>${a.text}</div>
+      </div>`;
+  });
+
+  // Narrative
+  document.getElementById('narrative-content').innerHTML = formatText(d.narrative || '—');
+
+  // Show
+  document.getElementById('results').style.display = 'block';
+  document.getElementById('results').scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+function formatText(text) {
+  return text.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+             .replace(/\n/g, '<br>');
+}
+
+// ── Helpers ──────────────────────────────────────────────
+function setLoading(on) {
+  document.getElementById('loading-bar').classList.toggle('active', on);
+  document.getElementById('analyze-btn').disabled = on;
+  document.getElementById('analyze-btn').textContent = on ? 'Analyse en cours...' : 'Analyser →';
+}
+
+function showError(msg) {
+  const el = document.getElementById('error-msg');
+  el.textContent = msg;
+  el.style.display = 'block';
+}
+
+function hideError() {
+  document.getElementById('error-msg').style.display = 'none';
+}
+
+function resetAll() {
+  imageBase64 = null;
+  document.getElementById('preview-image').style.display = 'none';
+  document.getElementById('drop-content').style.display = 'block';
+  document.getElementById('loaded-overlay').style.display = 'none';
+  document.getElementById('drop-zone').classList.remove('has-image');
+  document.getElementById('analyze-btn').disabled = true;
+  document.getElementById('analyze-btn').textContent = 'Analyser →';
+  document.getElementById('context-input').value = '';
+  document.getElementById('results').style.display = 'none';
+  document.getElementById('file-input').value = '';
+  hideError();
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+</script>
+</body>
+</html>
+

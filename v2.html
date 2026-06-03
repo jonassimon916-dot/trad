@@ -788,31 +788,8 @@ setLoading(true);
 hideError();
 document.getElementById('results').style.display = 'none';
 const systemPrompt = `Analyste technique expert. Réponds UNIQUEMENT en JSON valide, sans markdown, sans texte avant ou après.`;
-const userContent = `Analyse ce graphique financier${context ? ` (contexte: ${context})` : ''} et retourne exactement ce JSON:
-{
-"signal": "BULLISH|BEARISH|NEUTRAL",
-"signal_label": "texte court du signal ex: Signal Haussier Fort",
-"badges": [
-{"label": "ex: Breakout", "type": "bullish|bearish|neutral"},
-{"label": "ex: Surachat RSI", "type": "bearish"}
-],
-"trend": "paragraphe sur la tendance, structure de marché, type de graphique détecté",
-"indicators": "résumé des indicateurs visibles (RSI, MACD, EMA, volumes etc.)",
-"levels": [
-{"type": "support|resistance|target|stop", "value": "valeur ou zone", "label": "description courte"},
-{"type": "support|resistance|target|stop", "value": "valeur ou zone", "label": "description courte"}
-],
-"confidence": [
-{"label": "Signal Global", "pct": 75, "tier": "high|medium|low"},
-{"label": "Tendance", "pct": 80, "tier": "high"},
-{"label": "Timing Entrée", "pct": 60, "tier": "medium"}
-],
-"actions": [
-{"icon": "buy|sell|wait|risk", "text": "action concrète avec explication"},
-{"icon": "risk", "text": "conseil de gestion du risque avec stop-loss/take-profit"}
-],
-"narrative": "analyse narrative détaillée de 3-4 phrases: contexte technique, ce qui se passe, pourquoi, et le scénario le plus probable"
-}`;
+const userContent = `Analyse ce graphique${context ? ` (${context})` : ''}. Réponds UNIQUEMENT en JSON valide, sans markdown ni backticks, sans rien avant ou après:
+{"signal":"BULLISH|BEARISH|NEUTRAL","signal_label":"label court","badges":[{"label":"tag","type":"bullish|bearish|neutral"}],"trend":"2 phrases sur la tendance","indicators":"1 phrase sur les indicateurs","levels":[{"type":"support|resistance|target|stop","value":"prix","label":"desc courte"}],"confidence":[{"label":"Signal Global","pct":70,"tier":"high|medium|low"},{"label":"Tendance","pct":80,"tier":"high"}],"actions":[{"icon":"buy|sell|wait|risk","text":"action concrète"},{"icon":"risk","text":"stop-loss et take-profit"}],"narrative":"2 phrases: situation actuelle et scénario probable"}`;
 try {
 // Puter.js: on envoie image + texte via chat avec claude-sonnet
 const response = await puter.ai.chat(

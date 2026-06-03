@@ -841,7 +841,8 @@ const raw = typeof response === "string" ? response
 console.log("Raw text extracted:", raw);
 let parsed;
 try {
-const clean = raw.replace(/```json|```/g, "").trim();
+const match = raw.match(/```(?:json)?\s*([\s\S]*?)```/);
+const clean = match ? match[1].trim() : raw.trim();
 parsed = JSON.parse(clean);
 } catch {
 throw new Error("JSON invalide. Réponse brute : " + raw.substring(0, 300));

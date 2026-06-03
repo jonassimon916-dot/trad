@@ -818,10 +818,28 @@ const raw = typeof response === "string" ? response
 console.log("Raw text extracted:", raw);
 let parsed;
 try {
-const clean = raw.replace(/```json|```/g, "").trim();
-parsed = JSON.parse(clean);
+  let clean = raw.replace(/```json\n?/g, "").replace(/```/g, "").trim();
+  // Réparer le JSON tronqué : fermer proprement
+  const lastComma = clean.lastIndexOf(',');
+  const lastBrace = clean.lastIndexOf('}');
+  if (lastComma > lastBrace) {
+    clean = clean.substring(0, lastComma);
+  }
+  // Compter les { et } pour fermer ce qui manque
+  const opens = (clean.match(/{/g) || []).length;
+  const closes = (clean.match(/}/g) || []).length;
+  for (let i = 0; i < opens - closes; i++) clean += '}';
+  // Compter les [ et ] 
+  const arrOpens = (clean.match(/\[/g) || []).length;
+  const arrCloses = (clean.match(/\]/g) || []).length;
+  for (let i = 0; i < arrOpens - arrCloses; i++) clean += ']';
+  // Refermer les accolades restantes
+  const opens2 = (clean.match(/{/g) || []).length;
+  const closes2 = (clean.match(/}/g) || []).length;
+  for (let i = 0; i < opens2 - closes2; i++) clean += '}';
+  parsed = JSON.parse(clean);
 } catch {
-throw new Error("JSON invalide. Réponse brute : " + raw.substring(0, 300));
+  throw new Error("JSON invalide. Réponse brute : " + raw.substring(0, 300));
 }
 renderResults(parsed);
 } catch (err) {

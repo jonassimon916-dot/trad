@@ -829,7 +829,7 @@ source: { type: "base64", media_type: imageMediaType, data: imageBase64 }
 ]
 }
 ],
-{ model: "claude-haiku-4-5", max_tokens: 1000 }
+{ model: "claude-haiku-4-5", max_tokens: 2000 }
 );
 console.log("Puter raw response:", JSON.stringify(response, null, 2));
 const raw = typeof response === "string" ? response
@@ -841,8 +841,13 @@ const raw = typeof response === "string" ? response
 console.log("Raw text extracted:", raw);
 let parsed;
 try {
-const match = raw.match(/```(?:json)?\s*([\s\S]*?)```/);
-const clean = match ? match[1].trim() : raw.trim();
+const match = raw.match(/```(?:json)?\s*([\s\S]*?)```/s);
+let clean = match ? match[1].trim() : raw.trim();
+// Tronquer proprement si incomplet
+const lastBrace = clean.lastIndexOf('}');
+if (lastBrace !== -1 && !clean.trimEnd().endsWith('}')) {
+  clean = clean.substring(0, lastBrace + 1);
+}
 parsed = JSON.parse(clean);
 } catch {
 throw new Error("JSON invalide. Réponse brute : " + raw.substring(0, 300));

@@ -32,7 +32,6 @@ font-family: 'IBM Plex Mono', monospace;
 min-height: 100vh;
 overflow-x: hidden;
 }
-/* Grid background */
 body::before {
 content: '';
 position: fixed;
@@ -44,7 +43,6 @@ background-size: 40px 40px;
 pointer-events: none;
 z-index: 0;
 }
-/* Top scanline effect */
 body::after {
 content: '';
 position: fixed;
@@ -149,7 +147,6 @@ font-size: 13px;
 letter-spacing: 0.06em;
 text-transform: uppercase;
 }
-/* Upload zone */
 .upload-section {
 margin-bottom: 32px;
 }
@@ -250,7 +247,6 @@ color: var(--gold);
 letter-spacing: 0.08em;
 text-transform: uppercase;
 }
-/* Context input */
 .context-row {
 display: grid;
 grid-template-columns: 1fr auto;
@@ -283,7 +279,6 @@ transition: border-color 0.2s;
 border-color: var(--gold-dim);
 box-shadow: 0 0 0 2px rgba(212,168,67,0.06);
 }
-/* Analyze button */
 .btn-analyze {
 padding: 12px 32px;
 background: linear-gradient(135deg, var(--gold) 0%, var(--amber) 100%);
@@ -313,7 +308,6 @@ transition: background 0.2s;
 opacity: 0.4;
 cursor: not-allowed;
 }
-/* Loading */
 .loading-bar {
 display: none;
 height: 2px;
@@ -332,7 +326,6 @@ animation: loading-slide 1.5s ease-in-out infinite;
 0% { transform: translateX(-100%); width: 60%; }
 100% { transform: translateX(200%); width: 60%; }
 }
-/* Results */
 #results {
 display: none;
 animation: fadeUp 0.5s ease;
@@ -360,7 +353,6 @@ font-size: 10px;
 color: var(--text-muted);
 letter-spacing: 0.08em;
 }
-/* Signal badge */
 .signal-bar {
 display: flex;
 gap: 12px;
@@ -399,7 +391,6 @@ background: rgba(212,168,67,0.1);
 border-color: var(--gold);
 color: var(--gold);
 }
-/* Analysis panels */
 .panels-grid {
 display: grid;
 grid-template-columns: 1fr 1fr;
@@ -452,7 +443,6 @@ color: var(--text);
 color: var(--gold);
 font-weight: 500;
 }
-/* Action items */
 .action-list {
 display: flex;
 flex-direction: column;
@@ -485,7 +475,6 @@ margin-top: 1px;
 .action-icon.sell { background: rgba(239,68,68,0.15); color: var(--red); }
 .action-icon.wait { background: rgba(212,168,67,0.15); color: var(--gold); }
 .action-icon.risk { background: rgba(239,68,68,0.1); color: #f87171; }
-/* Levels table */
 .levels-grid {
 display: grid;
 grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
@@ -513,7 +502,6 @@ font-weight: 700;
 .level-value.resistance { color: var(--red); }
 .level-value.target { color: var(--gold); }
 .level-value.stop { color: #f97316; }
-/* Confidence meter */
 .confidence-row {
 display: flex;
 align-items: center;
@@ -547,7 +535,6 @@ color: var(--text-dim);
 width: 36px;
 text-align: right;
 }
-/* Reset button */
 .btn-reset {
 background: none;
 border: 1px solid var(--border);
@@ -565,7 +552,6 @@ transition: all 0.2s;
 border-color: var(--border-bright);
 color: var(--text);
 }
-/* Disclaimer */
 .disclaimer {
 text-align: center;
 padding: 24px;
@@ -576,7 +562,6 @@ line-height: 1.8;
 border-top: 1px solid var(--border);
 margin-top: 40px;
 }
-/* Clipboard paste hint */
 .paste-hint {
 display: flex;
 align-items: center;
@@ -595,7 +580,6 @@ padding: 2px 6px;
 font-size: 10px;
 color: var(--text-dim);
 }
-/* Error */
 .error-msg {
 background: rgba(239,68,68,0.08);
 border: 1px solid rgba(239,68,68,0.3);
@@ -625,7 +609,6 @@ CLAUDE AI · ANALYSE TECHNIQUE
 <h1>Analyse de graphique<br><span class="accent">par Intelligence Artificielle</span></h1>
 <p>Upload ou colle ton screenshot — obtiens une analyse technique complète</p>
 </div>
-<!-- Drop Zone -->
 <div class="upload-section">
 <div class="drop-zone" id="drop-zone">
 <img id="preview-image" alt="Graphique chargé">
@@ -649,7 +632,6 @@ Ou appuie sur <kbd>Ctrl</kbd>+<kbd>V</kbd> / <kbd>⌘V</kbd> après avoir fait u
 <input type="file" id="file-input" accept="image/*">
 </div>
 </div>
-<!-- Context + Analyze -->
 <div class="context-row">
 <div class="input-group">
 <label>Contexte (optionnel)</label>
@@ -660,13 +642,10 @@ Ou appuie sur <kbd>Ctrl</kbd>+<kbd>V</kbd> / <kbd>⌘V</kbd> après avoir fait u
 Analyser →
 </button>
 </div>
-<!-- Loading -->
 <div class="loading-bar" id="loading-bar">
 <div class="loading-fill"></div>
 </div>
-<!-- Error -->
 <div class="error-msg" id="error-msg"></div>
-<!-- Results -->
 <div id="results">
 <div class="results-header">
 <div class="results-title">// Analyse Technique</div>
@@ -717,12 +696,12 @@ pas des conseils financiers. Tradez toujours avec votre propre gestion du risque
 <script>
 let imageBase64 = null;
 let imageMediaType = 'image/png';
-// ── File input ──────────────────────────────────────────
+
 document.getElementById('file-input').addEventListener('change', e => {
 const file = e.target.files[0];
 if (file) loadFile(file);
 });
-// ── Drag & Drop ─────────────────────────────────────────
+
 const dz = document.getElementById('drop-zone');
 dz.addEventListener('dragover', e => { e.preventDefault(); dz.classList.add('drag-over'); });
 dz.addEventListener('dragleave', () => dz.classList.remove('drag-over'));
@@ -732,7 +711,7 @@ dz.classList.remove('drag-over');
 const file = e.dataTransfer.files[0];
 if (file && file.type.startsWith('image/')) loadFile(file);
 });
-// ── Clipboard paste ──────────────────────────────────────
+
 document.addEventListener('paste', e => {
 const items = e.clipboardData?.items;
 if (!items) return;
@@ -743,6 +722,7 @@ if (file) { loadFile(file); break; }
 }
 }
 });
+
 document.getElementById('paste-btn').addEventListener('click', async () => {
 try {
 const clipItems = await navigator.clipboard.read();
@@ -754,7 +734,6 @@ loadFile(new File([blob], 'paste.png', { type }));
 return;
 }
 }
-// fallback: tell user to use Ctrl+V
 document.getElementById('paste-btn').textContent = '⌘ Ctrl+V ici';
 setTimeout(() => document.getElementById('paste-btn').textContent = '⌘ Coller', 2000);
 } catch {
@@ -762,7 +741,7 @@ document.getElementById('paste-btn').textContent = '→ Ctrl+V';
 setTimeout(() => document.getElementById('paste-btn').textContent = '⌘ Coller', 2000);
 }
 });
-// ── Load file → base64 ───────────────────────────────────
+
 function loadFile(file) {
 imageMediaType = file.type || 'image/png';
 const reader = new FileReader();
@@ -780,18 +759,43 @@ hideError();
 };
 reader.readAsDataURL(file);
 }
-// ── Analyze ──────────────────────────────────────────────
+
 async function analyzeChart() {
 if (!imageBase64) return;
 const context = document.getElementById('context-input').value.trim();
 setLoading(true);
 hideError();
 document.getElementById('results').style.display = 'none';
+
 const systemPrompt = `Analyste technique expert. Réponds UNIQUEMENT en JSON valide, sans markdown, sans texte avant ou après.`;
-const userContent = `Analyse ce graphique${context ? ` (${context})` : ''}. Réponds UNIQUEMENT en JSON valide, sans markdown ni backticks, sans rien avant ou après:
-{"signal":"BULLISH|BEARISH|NEUTRAL","signal_label":"label court","badges":[{"label":"tag","type":"bullish|bearish|neutral"}],"trend":"2 phrases sur la tendance","indicators":"1 phrase sur les indicateurs","levels":[{"type":"support|resistance|target|stop","value":"prix","label":"desc courte"}],"confidence":[{"label":"Signal Global","pct":70,"tier":"high|medium|low"},{"label":"Tendance","pct":80,"tier":"high"}],"actions":[{"icon":"buy|sell|wait|risk","text":"action concrète"},{"icon":"risk","text":"stop-loss et take-profit"}],"narrative":"2 phrases: situation actuelle et scénario probable"}`;
+
+const userContent = `Analyse ce graphique financier${context ? ` (contexte: ${context})` : ''} et retourne exactement ce JSON:
+{
+"signal": "BULLISH|BEARISH|NEUTRAL",
+"signal_label": "texte court du signal ex: Signal Haussier Fort",
+"badges": [
+{"label": "ex: Breakout", "type": "bullish|bearish|neutral"},
+{"label": "ex: Surachat RSI", "type": "bearish"}
+],
+"trend": "paragraphe sur la tendance, structure de marché, type de graphique détecté",
+"indicators": "résumé des indicateurs visibles (RSI, MACD, EMA, volumes etc.)",
+"levels": [
+{"type": "support|resistance|target|stop", "value": "valeur ou zone", "label": "description courte"},
+{"type": "support|resistance|target|stop", "value": "valeur ou zone", "label": "description courte"}
+],
+"confidence": [
+{"label": "Signal Global", "pct": 75, "tier": "high|medium|low"},
+{"label": "Tendance", "pct": 80, "tier": "high"},
+{"label": "Timing Entrée", "pct": 60, "tier": "medium"}
+],
+"actions": [
+{"icon": "buy|sell|wait|risk", "text": "action concrète avec explication"},
+{"icon": "risk", "text": "conseil de gestion du risque avec stop-loss/take-profit"}
+],
+"narrative": "analyse narrative détaillée de 3-4 phrases: contexte technique, ce qui se passe, pourquoi, et le scénario le plus probable"
+}`;
+
 try {
-// Puter.js: on envoie image + texte via chat avec claude-sonnet
 const response = await puter.ai.chat(
 [
 { role: "system", content: systemPrompt },
@@ -808,39 +812,40 @@ source: { type: "base64", media_type: imageMediaType, data: imageBase64 }
 ],
 { model: "claude-haiku-4-5", max_tokens: 1000 }
 );
+
 console.log("Puter raw response:", JSON.stringify(response, null, 2));
+
 const raw = typeof response === "string" ? response
 : response?.message?.content?.[0]?.text
 || response?.content?.[0]?.text
 || response?.text
 || (Array.isArray(response) ? response.map(b => b?.text || "").join("") : null)
 || String(response);
+
 console.log("Raw text extracted:", raw);
+
 let parsed;
 try {
   let clean = raw.replace(/```json\n?/g, "").replace(/```/g, "").trim();
-  // Réparer le JSON tronqué : fermer proprement
+  // Réparer le JSON tronqué : supprimer la dernière virgule pendante
   const lastComma = clean.lastIndexOf(',');
   const lastBrace = clean.lastIndexOf('}');
   if (lastComma > lastBrace) {
     clean = clean.substring(0, lastComma);
   }
-  // Compter les { et } pour fermer ce qui manque
-  const opens = (clean.match(/{/g) || []).length;
-  const closes = (clean.match(/}/g) || []).length;
-  for (let i = 0; i < opens - closes; i++) clean += '}';
-  // Compter les [ et ] 
+  // Fermer les tableaux ouverts
   const arrOpens = (clean.match(/\[/g) || []).length;
   const arrCloses = (clean.match(/\]/g) || []).length;
   for (let i = 0; i < arrOpens - arrCloses; i++) clean += ']';
-  // Refermer les accolades restantes
-  const opens2 = (clean.match(/{/g) || []).length;
-  const closes2 = (clean.match(/}/g) || []).length;
-  for (let i = 0; i < opens2 - closes2; i++) clean += '}';
+  // Fermer les objets ouverts
+  const opens = (clean.match(/{/g) || []).length;
+  const closes = (clean.match(/}/g) || []).length;
+  for (let i = 0; i < opens - closes; i++) clean += '}';
   parsed = JSON.parse(clean);
 } catch {
   throw new Error("JSON invalide. Réponse brute : " + raw.substring(0, 300));
 }
+
 renderResults(parsed);
 } catch (err) {
 showError("Erreur : " + err.message);
@@ -848,11 +853,10 @@ showError("Erreur : " + err.message);
 setLoading(false);
 }
 }
-// ── Render ───────────────────────────────────────────────
+
 function renderResults(d) {
-// Timestamp
 document.getElementById('ts').textContent = new Date().toLocaleTimeString('fr-FR');
-// Signal badges
+
 const signalBar = document.getElementById('signal-bar');
 signalBar.innerHTML = '';
 const mainBadge = document.createElement('div');
@@ -865,11 +869,10 @@ el.className = `signal-badge ${b.type || 'neutral'}`;
 el.textContent = b.label;
 signalBar.appendChild(el);
 });
-// Trend
+
 document.getElementById('trend-content').innerHTML = formatText(d.trend || '—');
-// Indicators
 document.getElementById('indicators-content').innerHTML = formatText(d.indicators || '—');
-// Levels
+
 const levelsEl = document.getElementById('levels-content');
 levelsEl.innerHTML = '';
 (d.levels || []).forEach(l => {
@@ -881,7 +884,7 @@ levelsEl.innerHTML += `
 </div>`;
 });
 if (!d.levels?.length) levelsEl.innerHTML = '<div style="color:var(--text-muted);font-size:12px">Non détectés</div>';
-// Confidence
+
 const confEl = document.getElementById('confidence-content');
 confEl.innerHTML = '';
 (d.confidence || []).forEach(c => {
@@ -894,7 +897,7 @@ confEl.innerHTML += `
 <div class="confidence-pct">${c.pct}%</div>
 </div>`;
 });
-// Actions
+
 const actEl = document.getElementById('actions-content');
 actEl.innerHTML = '';
 const iconMap = { buy: '▲', sell: '▼', wait: '◎', risk: '⚠' };
@@ -905,30 +908,34 @@ actEl.innerHTML += `
 <div>${a.text}</div>
 </div>`;
 });
-// Narrative
+
 document.getElementById('narrative-content').innerHTML = formatText(d.narrative || '—');
-// Show
+
 document.getElementById('results').style.display = 'block';
 document.getElementById('results').scrollIntoView({ behavior: 'smooth', block: 'start' });
 }
+
 function formatText(text) {
 return text.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
 .replace(/\n/g, '<br>');
 }
-// ── Helpers ──────────────────────────────────────────────
+
 function setLoading(on) {
 document.getElementById('loading-bar').classList.toggle('active', on);
 document.getElementById('analyze-btn').disabled = on;
 document.getElementById('analyze-btn').textContent = on ? 'Analyse en cours...' : 'Analyser →';
 }
+
 function showError(msg) {
 const el = document.getElementById('error-msg');
 el.textContent = msg;
 el.style.display = 'block';
 }
+
 function hideError() {
 document.getElementById('error-msg').style.display = 'none';
 }
+
 function resetAll() {
 imageBase64 = null;
 document.getElementById('preview-image').style.display = 'none';
@@ -946,4 +953,3 @@ window.scrollTo({ top: 0, behavior: 'smooth' });
 </script>
 </body>
 </html>
-
